@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "next",
+    "next/core-web-vitals",
+    "next/typescript",
+    "next/core-web-vitals",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": ["error"],
+    "react/react-in-jsx-scope": "off",
+    "no-console": "warn",
+    "no-unused-vars": "warn"
+  }
+}
