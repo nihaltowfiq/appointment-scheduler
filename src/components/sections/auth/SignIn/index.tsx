@@ -5,6 +5,7 @@ import { signInSchema } from '@/libs/schemas';
 import { SignInFormData } from '@/libs/types';
 import { auth, db } from '@/services/firebase';
 import { errorToast, successToast } from '@/services/toast';
+import { saveUser } from '@/store/features';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setCookie } from 'cookies-next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -12,10 +13,13 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 
 export function SignInSection() {
   const [isLoading, setLoading] = useState(false);
+
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -48,11 +52,11 @@ export function SignInSection() {
       const user = userCredential.user;
       const token = await user.getIdToken(); // Get the Firebase ID token
 
-      // Store the token in cookies
       setCookie('token', token, {
         maxAge: 60 * 60 * 24 * 5, // Expires in 5 days
         path: '/',
       });
+      dispatch(saveUser({ email: fakeEmail, uid: user.uid }));
 
       successToast({ message: 'User signed in successfully!' });
       router.push('/');

@@ -1,14 +1,14 @@
-import { Bounce, toast, ToastOptions } from "react-toastify";
+import { Bounce, toast, ToastOptions } from 'react-toastify';
 
 const toastOptions: ToastOptions = {
-  position: "top-right",
+  position: 'bottom-right',
   autoClose: 5000,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
   progress: undefined,
-  theme: "light",
+  theme: 'light',
   transition: Bounce,
 };
 
