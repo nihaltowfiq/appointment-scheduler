@@ -20,9 +20,10 @@ export function AuthCard({
 
   return (
     <Card className="mx-3 w-[24rem] p-6">
-      <h1 className="text-xl font-semibold text-center mb-6">
+      <h1 className="text-xl font-semibold text-center">
         {pathname === '/signin' ? 'Sign In' : 'Sign Up'}
       </h1>
+      <p className="text-xs text-center mb-6">Appointment Scheduler</p>
 
       <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
         <Input
@@ -62,7 +63,7 @@ export function AuthCard({
           className="mt-4"
           isLoading={isLoading}
         >
-          Sign Up
+          {pathname === '/signin' ? 'Sign In' : 'Sign Up'}
         </Button>
       </form>
     </Card>
