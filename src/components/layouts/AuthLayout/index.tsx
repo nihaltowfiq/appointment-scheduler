@@ -2,7 +2,7 @@ import { Navbar, NavbarBrand } from '@nextui-org/react';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <section className="min-h-screen">
       <Navbar position="static">

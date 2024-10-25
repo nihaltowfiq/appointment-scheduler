@@ -13,6 +13,7 @@ export function Password({ register, errors }: Props) {
   return (
     <Input
       fullWidth
+      required
       label="Password"
       className="mb-4"
       variant="bordered"

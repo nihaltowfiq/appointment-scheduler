@@ -11,6 +11,25 @@
     "prettier/prettier": ["error"],
     "react/react-in-jsx-scope": "off",
     "no-console": "warn",
-    "no-unused-vars": "warn"
+    "no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_", // Optional: Ignore variables starting with _
+        "args": "after-used",
+        "ignoreRestSiblings": true,
+        "argsIgnorePattern": "^_" // Ignore unused arguments starting with _
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "ignoreRestSiblings": true,
+        "argsIgnorePattern": "^_",
+        "ignoreTypeDefinitions": true // Ignore unused `type` and `interface` declarations
+      }
+    ]
   }
 }
