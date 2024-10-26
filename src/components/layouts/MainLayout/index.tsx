@@ -1,5 +1,6 @@
 'use client';
 
+import { auth, setAuthPersistence } from '@/services/firebase';
 import { AppDispatch } from '@/store';
 import { clearUser, fetchUserInfo, getAppState } from '@/store/features';
 import { formatUsername } from '@/utils';
@@ -32,10 +33,12 @@ export function MainLayout({ children }: { children?: ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
+    setAuthPersistence();
     dispatch(fetchUserInfo());
   }, [dispatch]);
 
   const handleSignOut = () => {
+    auth.signOut();
     deleteCookie('token');
     dispatch(clearUser());
     router.push('/signin');

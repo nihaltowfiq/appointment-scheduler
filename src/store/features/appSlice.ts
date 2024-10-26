@@ -7,12 +7,16 @@ import { RootState } from '../store';
 interface UserState {
   uid: string | null;
   email: string | null;
+  name: string | null;
+  occupation: string | null;
   loading: boolean;
 }
 
 const initialState: UserState = {
   uid: null,
   email: null,
+  name: null,
+  occupation: null,
   loading: false,
 };
 
@@ -21,8 +25,6 @@ export const fetchUserInfo = createAsyncThunk(
   'user/fetchUserInfo',
   async () => {
     const response = await axios.get('/api/user');
-
-    console.log(response);
 
     if (response.status === 401) {
       deleteCookie('token');

@@ -1,4 +1,3 @@
-// /components/UserProfile.tsx
 'use client';
 
 import { getUserByUsername } from '@/services/firebase/user';

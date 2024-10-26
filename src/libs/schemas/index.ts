@@ -45,16 +45,16 @@ export const signUpSchema = yup.object().shape({
     .min(2, 'Occupation must be at least 2 characters')
     .max(50, 'Occupation must be less than 50 characters'),
 
-  image: yup
-    .mixed()
-    .test('fileType', 'Only image files are allowed', (value: any) => {
-      if (!value) return true; // If the field is not required, skip validation when no file is uploaded
-      return (
-        value && ['image/jpeg', 'image/png', 'image/jpg'].includes(value.type)
-      );
-    })
-    .test('fileSize', 'Image must be less than 5 MB', (value: any) => {
-      if (!value) return true;
-      return value && value.size <= 5 * 1024 * 1024;
-    }),
+  // image: yup
+  //   .mixed()
+  //   .test('fileType', 'Only image files are allowed', (value: any) => {
+  //     if (!value) return true; // If the field is not required, skip validation when no file is uploaded
+  //     return (
+  //       value && ['image/jpeg', 'image/png', 'image/jpg'].includes(value.type)
+  //     );
+  //   })
+  //   .test('fileSize', 'Image must be less than 5 MB', (value: any) => {
+  //     if (!value) return true;
+  //     return value && value.size <= 5 * 1024 * 1024;
+  //   }),
 });

@@ -1,6 +1,10 @@
 // firebaseConfig.ts
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  getAuth,
+  setPersistence,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -29,5 +33,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+// Set persistence to 'local' so the user stays signed in even if they close the browser
+export async function setAuthPersistence() {
+  await setPersistence(auth, browserLocalPersistence);
+}
 
 export { auth, db, storage };

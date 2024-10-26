@@ -9,7 +9,7 @@ import { saveUser } from '@/store/features';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setCookie } from 'cookies-next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -31,37 +31,38 @@ export function SignInSection() {
 
   const onSubmit = async (data: SignInFormData) => {
     const { username, password } = data;
+
     setLoading(true);
     try {
-      // Look up the username in Firestore
-      const userRef = doc(db, 'usernames', username);
-      const userSnap = await getDoc(userRef);
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('username', '==', username));
+      const querySnapshot = await getDocs(q);
 
-      if (!userSnap.exists()) {
+      if (querySnapshot.empty) {
         errorToast({ message: 'Invalid username or password.' });
+        setLoading(false);
         return;
       }
 
       const fakeEmail = `${username}@as.com`;
-
       const userCredential = await signInWithEmailAndPassword(
         auth,
         fakeEmail,
         password
       );
       const user = userCredential.user;
-      const token = await user.getIdToken(); // Get the Firebase ID token
+      const token = await user.getIdToken();
 
       setCookie('token', token, {
-        maxAge: 60 * 60 * 24 * 5, // Expires in 5 days
+        maxAge: 60 * 60 * 24 * 5,
         path: '/',
       });
       dispatch(saveUser({ email: fakeEmail, uid: user.uid }));
 
       successToast({ message: 'User signed in successfully!' });
       router.push('/');
-    } catch (err) {
-      console.log(err);
+    } catch ({ message }: any) {
+      errorToast({ message });
     } finally {
       setLoading(false);
     }

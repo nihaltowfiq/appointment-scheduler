@@ -3,14 +3,21 @@
 
 import { signUpSchema } from '@/libs/schemas';
 import { SignUpFormData } from '@/libs/types';
-import { auth, db, storage } from '@/services/firebase';
+import { auth, db } from '@/services/firebase';
 import { errorToast, successToast } from '@/services/toast';
+import { saveUser } from '@/store/features';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Card, Input } from '@nextui-org/react';
 import { setCookie } from 'cookies-next';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,6 +26,7 @@ import { Password } from './Password';
 
 export function SignUpCard() {
   const [isLoading, setLoading] = useState(false);
+
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -26,18 +34,25 @@ export function SignUpCard() {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<SignUpFormData>({
     resolver: yupResolver(signUpSchema as any),
-    defaultValues: { image: null },
   });
 
   const onSubmit = async (data: SignUpFormData) => {
-    const { username, password, name, image, occupation } = data;
+    const { username, password, name, occupation } = data;
     setLoading(true);
 
     try {
-      // Firebase Authentication
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('username', '==', username));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        errorToast({ message: 'Username already taken.' });
+        setLoading(false);
+        return;
+      }
+
       const fakeEmail = `${username}@as.com`;
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -46,28 +61,20 @@ export function SignUpCard() {
       );
       const user = userCredential.user;
 
-      // Firebase Storage: Upload image if available
-      let imageUrl = '';
-      if (image) {
-        const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
-        await uploadBytes(storageRef, image);
-        imageUrl = await getDownloadURL(storageRef);
-      }
-
       // Firestore: Store user data
       const userData = {
         uid: user.uid,
+        email: fakeEmail,
         username,
         name,
         occupation,
-        imageUrl,
       };
       await setDoc(doc(db, 'users', user.uid), userData);
 
       // Firebase Token & Cookie
       const token = await user.getIdToken();
       setCookie('token', token, { maxAge: 60 * 60 * 24 * 5, path: '/' });
-      // dispatch(saveUser(userData));
+      dispatch(saveUser({ email: fakeEmail, uid: user.uid }));
 
       successToast({ message: 'User registered successfully!' });
       router.push('/');
@@ -77,11 +84,6 @@ export function SignUpCard() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setValue('image', file);
   };
 
   return (
@@ -125,16 +127,6 @@ export function SignUpCard() {
           isInvalid={!!errors.occupation}
           errorMessage={errors.occupation?.message as string}
         />
-
-        <input
-          type="file"
-          accept="image/*"
-          className="mb-4"
-          onChange={handleImageChange}
-        />
-        {errors.image && (
-          <p className="text-red-500 text-xs">{errors.image.message}</p>
-        )}
 
         <Password register={register as any} errors={errors as any} />
 

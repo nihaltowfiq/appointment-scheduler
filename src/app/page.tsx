@@ -1,11 +1,11 @@
 import { MainLayout } from '@/components/layouts';
-import { UserList } from '@/components/sections/user/UserList';
+import { UsersList } from '@/components/sections';
 
 export default function Home() {
   return (
     <MainLayout>
       <div className="container">
-        <UserList />
+        <UsersList />
       </div>
     </MainLayout>
   );
