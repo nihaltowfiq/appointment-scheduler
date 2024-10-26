@@ -6,4 +6,7 @@ export type SignInFormData = {
 export type SignUpFormData = {
   username: string;
   password: string;
+  name: string;
+  image: File | null;
+  occupation: string;
 };

@@ -15,17 +15,36 @@ export function AuthCard({
   onSubmit,
   handleSubmit,
   isLoading,
-}: Props) {
+}: Props<SignInFormData | SignUpFormData>) {
   const pathname = usePathname();
+  const isSignIn = pathname === '/signin';
 
   return (
     <Card className="mx-3 w-[24rem] p-6">
       <h1 className="text-xl font-semibold text-center">
-        {pathname === '/signin' ? 'Sign In' : 'Sign Up'}
+        {isSignIn ? 'Sign In' : 'Sign Up'}
       </h1>
       <p className="text-xs text-center mb-6">Appointment Scheduler</p>
 
       <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+        {!isSignIn && (
+          <Input
+            fullWidth
+            required
+            label="Name"
+            variant="bordered"
+            className="mb-4"
+            {...register('name' as const)}
+            placeholder="Enter your Name"
+            isInvalid={isSignUpData(errors) && !!errors.name}
+            errorMessage={
+              isSignUpData(errors)
+                ? (errors.name?.message as string)
+                : undefined
+            }
+          />
+        )}
+
         <Input
           fullWidth
           required
@@ -40,7 +59,7 @@ export function AuthCard({
 
         <Password register={register} errors={errors} />
 
-        {pathname === '/signin' ? (
+        {isSignIn ? (
           <div className="text-xs">
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="hover:text-primary">
@@ -63,17 +82,23 @@ export function AuthCard({
           className="mt-4"
           isLoading={isLoading}
         >
-          {pathname === '/signin' ? 'Sign In' : 'Sign Up'}
+          {isSignIn ? 'Sign In' : 'Sign Up'}
         </Button>
       </form>
     </Card>
   );
 }
 
-type Props = {
+function isSignUpData(
+  errors: FieldErrors<SignInFormData | SignUpFormData>
+): errors is FieldErrors<SignUpFormData> {
+  return 'name' in errors;
+}
+
+type Props<T extends SignInFormData | SignUpFormData> = {
   isLoading: boolean;
-  errors: FieldErrors<SignInFormData | SignUpFormData>;
-  register: UseFormRegister<SignInFormData | SignUpFormData>;
-  onSubmit: (data: SignInFormData | SignUpFormData) => Promise<void>;
-  handleSubmit: UseFormHandleSubmit<SignUpFormData | SignInFormData, undefined>;
+  errors: FieldErrors<T>;
+  register: UseFormRegister<T>;
+  onSubmit: (data: T) => Promise<void>;
+  handleSubmit: UseFormHandleSubmit<T>;
 };

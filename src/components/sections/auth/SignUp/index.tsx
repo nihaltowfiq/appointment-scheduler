@@ -2,7 +2,7 @@
 
 import { AuthCard } from '@/components/ui';
 import { signUpSchema } from '@/libs/schemas';
-import { SignUpFormData } from '@/libs/types';
+import { SignInFormData, SignUpFormData } from '@/libs/types';
 import { auth, db } from '@/services/firebase';
 import { errorToast, successToast } from '@/services/toast';
 import { saveUser } from '@/store/features';
@@ -12,7 +12,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormRegister } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
 export function SignUpSection() {
@@ -72,8 +72,10 @@ export function SignUpSection() {
   return (
     <AuthCard
       errors={errors}
-      register={register}
-      onSubmit={onSubmit}
+      register={register as UseFormRegister<SignUpFormData | SignInFormData>}
+      onSubmit={
+        onSubmit as (data: SignUpFormData | SignInFormData) => Promise<void>
+      }
       isLoading={isLoading}
       handleSubmit={handleSubmit}
     />
