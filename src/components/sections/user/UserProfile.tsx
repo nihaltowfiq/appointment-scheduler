@@ -1,6 +1,6 @@
 'use client';
 
-import { getUserByUsername } from '@/services/firebase/user';
+import { getUser } from '@/services/firebase/user';
 import { Card } from '@nextui-org/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,7 +15,7 @@ export function UserProfile({ username }: UserProfileProps) {
 
   useEffect(() => {
     async function fetchUser() {
-      const userData = await getUserByUsername(username);
+      const userData = await getUser(username);
       if (!userData) {
         console.error('User not found');
         router.push('/'); // Redirect if user not found

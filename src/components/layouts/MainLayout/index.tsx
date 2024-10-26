@@ -1,5 +1,6 @@
 'use client';
 
+import { User } from '@/libs/types';
 import { auth } from '@/services/firebase';
 import { getUser } from '@/services/firebase/user';
 import { AppDispatch } from '@/store';
@@ -34,7 +35,7 @@ export function MainLayout({ children }: { children?: ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const user = await getUser();
+      const user = (await getUser()) as User;
       dispatch(
         updateUser({
           uid: user.uid,

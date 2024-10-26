@@ -18,7 +18,6 @@ import {
   ModalHeader,
   TimeInput,
 } from '@nextui-org/react';
-import { useDateFormatter } from '@react-aria/i18n';
 import { addDoc, collection } from 'firebase/firestore';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -65,6 +64,7 @@ export function CreateAppointment({ user, isOpen, onOpenChange }: Props) {
       await addDoc(collection(db, 'appointments'), appointmentData);
       successToast({ message: 'Scheduled an appointment!' });
       handleClose();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch ({ message }: any) {
       errorToast({ message });
     } finally {
@@ -72,19 +72,17 @@ export function CreateAppointment({ user, isOpen, onOpenChange }: Props) {
     }
   };
 
-  const formatter = useDateFormatter({ dateStyle: 'short', timeStyle: 'long' });
+  // const formatter = useDateFormatter({ dateStyle: 'short', timeStyle: 'long' });
 
   const handleClose = () => {
     onOpenChange();
     reset({ ...defaultValues });
   };
 
-  console.log('time', watch('time'));
-
   return (
     <Modal isOpen={isOpen} onOpenChange={handleClose} placement="top-center">
       <ModalContent>
-        {(onClose) => (
+        {(_) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
               Appointment

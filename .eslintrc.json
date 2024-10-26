@@ -11,25 +11,30 @@
     "prettier/prettier": ["error"],
     "react/react-in-jsx-scope": "off",
     "no-console": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
+    "react-hooks/exhaustive-deps": "warn",
     "no-unused-vars": [
       "warn",
       {
         "vars": "all",
-        "varsIgnorePattern": "^_", // Optional: Ignore variables starting with _
+        "varsIgnorePattern": "^_",
         "args": "after-used",
         "ignoreRestSiblings": true,
-        "argsIgnorePattern": "^_" // Ignore unused arguments starting with _
-      }
-    ],
-    "@typescript-eslint/no-unused-vars": [
-      "warn",
-      {
-        "vars": "all",
-        "args": "after-used",
-        "ignoreRestSiblings": true,
-        "argsIgnorePattern": "^_",
-        "ignoreTypeDefinitions": true // Ignore unused `type` and `interface` declarations
+        "argsIgnorePattern": "^_"
       }
     ]
+    // "@typescript-eslint/no-unused-vars": [
+    //   "warn",
+    //   {
+    //     "vars": "all",
+    //     "args": "after-used",
+    //     "ignoreRestSiblings": true,
+    //     "argsIgnorePattern": "^_"
+    //   }
+    // ]
   }
 }

@@ -2,12 +2,11 @@
 
 import { AuthCard } from '@/components/ui';
 import { signInSchema } from '@/libs/schemas';
-import { SignInFormData } from '@/libs/types';
+import { SignInFormData, User } from '@/libs/types';
 import { auth, db } from '@/services/firebase';
 import { getUser } from '@/services/firebase/user';
 import { errorToast, successToast } from '@/services/toast';
 import { updateUser } from '@/store/features';
-
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setCookie } from 'cookies-next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -55,7 +54,7 @@ export function SignInSection() {
       const user = userCredential.user;
       const token = await user.getIdToken();
 
-      const currentUser = await getUser(user.uid);
+      const currentUser = (await getUser(user.uid)) as User;
 
       setCookie('token', token, {
         maxAge: 60 * 60 * 24 * 5,
