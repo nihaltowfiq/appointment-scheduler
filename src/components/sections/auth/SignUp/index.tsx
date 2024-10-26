@@ -1,18 +1,27 @@
 'use client';
 
-import { AuthCard } from '@/components/ui';
+import { Password } from '@/components/ui';
 import { signUpSchema } from '@/libs/schemas';
-import { SignInFormData, SignUpFormData } from '@/libs/types';
+import { SignUpFormData } from '@/libs/types';
 import { auth, db } from '@/services/firebase';
 import { errorToast, successToast } from '@/services/toast';
-import { saveUser } from '@/store/features';
+
+import { updateUser } from '@/store/features';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Button, Card, Input } from '@nextui-org/react';
 import { setCookie } from 'cookies-next';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useForm, UseFormRegister } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
 export function SignUpSection() {
@@ -26,19 +35,21 @@ export function SignUpSection() {
     handleSubmit,
     formState: { errors },
   } = useForm<SignUpFormData>({
-    resolver: yupResolver(signUpSchema),
+    resolver: yupResolver(signUpSchema as any),
   });
 
   const onSubmit = async (data: SignUpFormData) => {
-    const { username, password } = data;
+    const { username, password, name, occupation } = data;
     setLoading(true);
 
     try {
-      const userRef = doc(db, 'usernames', username);
-      const userSnap = await getDoc(userRef);
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('username', '==', username));
+      const querySnapshot = await getDocs(q);
 
-      if (userSnap.exists()) {
+      if (!querySnapshot.empty) {
         errorToast({ message: 'Username already taken.' });
+        setLoading(false);
         return;
       }
 
@@ -49,35 +60,92 @@ export function SignUpSection() {
         password
       );
       const user = userCredential.user;
-      await setDoc(doc(db, 'usernames', username), { uid: user.uid });
 
-      const token = await user.getIdToken(); // Get the Firebase ID token
+      // Firestore: Store user data
+      const userData = {
+        uid: user.uid,
+        email: fakeEmail,
+        username,
+        name,
+        occupation,
+      };
+      await setDoc(doc(db, 'users', user.uid), userData);
 
-      setCookie('token', token, {
-        maxAge: 60 * 60 * 24 * 5, // Expires in 5 days
-        path: '/',
-      });
-      dispatch(saveUser({ email: fakeEmail, uid: user.uid }));
-
+      // Firebase Token & Cookie
+      const token = await user.getIdToken();
+      setCookie('token', token, { maxAge: 60 * 60 * 24 * 5, path: '/' });
+      setCookie('uid', user.uid, { maxAge: 60 * 60 * 24 * 5, path: '/' });
+      dispatch(
+        updateUser({
+          uid: userData.uid,
+          name: userData.name,
+          username: userData.username,
+          occupation: userData.occupation,
+        })
+      );
       successToast({ message: 'User registered successfully!' });
       router.push('/');
-    } catch (err: any) {
-      console.log(err);
-      errorToast({ message: err.message });
+    } catch ({ message }: any) {
+      errorToast({ message });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthCard
-      errors={errors}
-      register={register as UseFormRegister<SignUpFormData | SignInFormData>}
-      onSubmit={
-        onSubmit as (data: SignUpFormData | SignInFormData) => Promise<void>
-      }
-      isLoading={isLoading}
-      handleSubmit={handleSubmit}
-    />
+    <Card className="mx-3 w-[24rem] p-6">
+      <h1 className="text-xl font-semibold text-center">Sign Up</h1>
+      <p className="text-xs text-center mb-6">Appointment Scheduler</p>
+
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+        <Input
+          fullWidth
+          required
+          label="Name"
+          variant="bordered"
+          className="mb-4"
+          {...register('name')}
+          placeholder="Enter your Name"
+          isInvalid={!!errors.name}
+          errorMessage={errors.name?.message as string}
+        />
+
+        <Input
+          fullWidth
+          required
+          label="Username"
+          variant="bordered"
+          className="mb-4"
+          {...register('username')}
+          placeholder="Enter your username"
+          isInvalid={!!errors.username}
+          errorMessage={errors.username?.message as string}
+        />
+
+        <Input
+          fullWidth
+          required
+          label="Occupation"
+          variant="bordered"
+          className="mb-4"
+          {...register('occupation')}
+          placeholder="Enter your occupation"
+          isInvalid={!!errors.occupation}
+          errorMessage={errors.occupation?.message as string}
+        />
+
+        <Password register={register as any} errors={errors as any} />
+
+        <Button
+          fullWidth
+          type="submit"
+          color="primary"
+          className="mt-4"
+          isLoading={isLoading}
+        >
+          Sign Up
+        </Button>
+      </form>
+    </Card>
   );
 }

@@ -7,6 +7,20 @@ export type SignUpFormData = {
   username: string;
   password: string;
   name: string;
-  // image: File | null;
   occupation: string;
+};
+
+export type User = {
+  uid: string;
+  username: string;
+  password: string;
+  name: string;
+  occupation: string;
+};
+
+export type Appointment = {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
 };

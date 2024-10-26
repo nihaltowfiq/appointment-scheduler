@@ -1,7 +1,9 @@
 'use client';
 
+import { User } from '@/libs/types';
 import { db } from '@/services/firebase';
 import { errorToast } from '@/services/toast';
+import { getAppState } from '@/store/features';
 import {
   Button,
   Dropdown,
@@ -17,21 +19,30 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  User,
+  useDisclosure,
+  User as UserAvatar,
 } from '@nextui-org/react';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { CreateAppointment } from '../../appointment';
 import { columns } from './constants';
 import { SearchIcon } from './SearchIcon';
 import { VerticalDotsIcon } from './VerticalDotsIcon';
 
 export function UsersList() {
   const [isLoading, setLoading] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [rowsPerPage] = useState(10);
   const [filterValue, setFilterValue] = useState('');
-
   const [page, setPage] = useState(1);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const { uid } = useSelector(getAppState);
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const hasSearchFilter = Boolean(filterValue);
 
   useEffect(() => {
     async function getAllUsers() {
@@ -40,7 +51,11 @@ export function UsersList() {
         const usersRef = collection(db, 'users');
         const userQuery = query(usersRef);
         const querySnapshot = await getDocs(userQuery);
-        setUsers(querySnapshot.docs.map((doc) => doc.data()));
+        setUsers(
+          querySnapshot.docs
+            .map((doc) => doc.data())
+            .filter((el) => el.uid !== uid) as User[]
+        );
       } catch ({ message }: any) {
         errorToast({ message });
       } finally {
@@ -48,9 +63,12 @@ export function UsersList() {
       }
     }
     getAllUsers();
-  }, []);
+  }, [uid]);
 
-  const hasSearchFilter = Boolean(filterValue);
+  const handleModal = (user: any) => {
+    setSelectedUser(user);
+    onOpen();
+  };
 
   const filteredItems = useMemo(() => {
     let filteredUsers = [...users];
@@ -73,31 +91,21 @@ export function UsersList() {
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
 
-  // const sortedItems = useMemo(() => {
-  //   return [...items].sort((a, b) => {
-  //     const first = a[sortDescriptor.column];
-  //     const second = b[sortDescriptor.column];
-  //     const cmp = first < second ? -1 : first > second ? 1 : 0;
-
-  //     return sortDescriptor.direction === 'descending' ? -cmp : cmp;
-  //   });
-  // }, [sortDescriptor, items]);
-
   const renderCell = useCallback((user: any, columnKey: string) => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
       case 'name':
         return (
-          <User
+          <UserAvatar
             avatarProps={{ radius: 'full', src: user.avatar }}
             description={user.username}
             name={cellValue}
           >
             {user.name}
-          </User>
+          </UserAvatar>
         );
-      case 'role':
+      case 'occupation':
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">{cellValue}</p>
@@ -112,7 +120,9 @@ export function UsersList() {
               </Button>
             </DropdownTrigger>
             <DropdownMenu className="w-fit">
-              <DropdownItem>Create Appointment</DropdownItem>
+              <DropdownItem onPress={() => handleModal(user)}>
+                Create Appointment
+              </DropdownItem>
             </DropdownMenu>
           </Dropdown>
         );
@@ -170,45 +180,51 @@ export function UsersList() {
   }, [items.length, page, pages, hasSearchFilter]);
 
   return (
-    <Table
-      isHeaderSticky
-      aria-label="Table"
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: 'max-h-[687px]',
-      }}
-      // sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      className="w-full lg:max-w-[768px] mx-auto"
-      // onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={columns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === 'actions' ? 'center' : 'start'}
-            // allowsSorting={column.sortable}
-          >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody
-        items={items}
-        isLoading={isLoading}
-        loadingContent={<Spinner />}
-        emptyContent={'No users found'}
+    <>
+      <Table
+        isHeaderSticky
+        aria-label="Table"
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: 'max-h-[687px]',
+        }}
+        topContent={topContent}
+        topContentPlacement="outside"
+        className="w-full lg:max-w-[768px] mx-auto"
       >
-        {(item) => (
-          <TableRow key={item.uid}>
-            {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey as string)}</TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === 'actions' ? 'center' : 'start'}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={items}
+          isLoading={isLoading}
+          loadingState={isLoading || !items.length ? 'loading' : 'idle'}
+          loadingContent={<Spinner />}
+          emptyContent={'No users found'}
+        >
+          {(item) => (
+            <TableRow key={item.uid}>
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey as string)}</TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      <CreateAppointment
+        isOpen={isOpen}
+        user={selectedUser}
+        onOpenChange={onOpenChange}
+      />
+    </>
   );
 }

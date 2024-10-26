@@ -1,33 +1,28 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-export const protectedRoutes = ['/'];
+export const protectedRoutes = ['/', '/dashboard', '/profile']; // Add specific protected routes here
 export const authRoutes = ['/signup', '/signin'];
 
-export async function middleware({ cookies, nextUrl, url }: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const { cookies, nextUrl } = request;
   const token = cookies.get('token')?.value;
 
-  if (!token && protectedRoutes.includes(nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/signin', url));
-  } else if (token && authRoutes.includes(nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/', url));
-    // try {
-    //   // Validate token
-    //   await verifyIdToken(token);
+  const isProtectedRoute = protectedRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-    //   if(authRoutes.includes(nextUrl.pathname)) {
-    //     return NextResponse.redirect(new URL('/', url));
-    //   }
-    //   return NextResponse.next(); // Allow access if token is valid
-    // } catch (e) {
-    //   console.log(e);
-
-    //   // If token is invalid, redirect to sign-in
-    //   return NextResponse.redirect(new URL('/signin', url));
-    // }
-  } else {
-    return NextResponse.next();
+  // Redirect to /signin if token is missing and accessing a protected route
+  if (!token && isProtectedRoute) {
+    return NextResponse.redirect(new URL('/signin', request.url));
   }
+
+  // Redirect to / if token exists and accessing an auth route
+  if (token && isAuthRoute) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // Allow access if not restricted
+  return NextResponse.next();
 }
 
 export const config = {

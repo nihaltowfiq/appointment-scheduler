@@ -1,11 +1,10 @@
 import { AuthLayout } from '@/components/layouts';
-import { SignUpCard } from '@/components/ui/SignUpCard';
+import { SignUpSection } from '@/components/sections';
 
 export default function SignUp() {
   return (
     <AuthLayout>
-      {/* <SignUpSection /> */}
-      <SignUpCard />
+      <SignUpSection />
     </AuthLayout>
   );
 }

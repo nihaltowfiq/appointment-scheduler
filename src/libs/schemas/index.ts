@@ -5,18 +5,6 @@ export const signInSchema = yup.object().shape({
   password: yup.string().required('Password is required'),
 });
 
-// export const signUpSchema = Yup.object().shape({
-//   name: Yup.string()
-//     .required('Name is required')
-//     .min(3, 'Username must be at least 3 characters'),
-//   username: Yup.string()
-//     .required('Username is required')
-//     .min(3, 'Username must be at least 3 characters'),
-//   password: Yup.string()
-//     .required('Password is required')
-//     .min(6, 'Password must be at least 6 characters'),
-// });
-
 export const signUpSchema = yup.object().shape({
   name: yup
     .string()
@@ -44,17 +32,19 @@ export const signUpSchema = yup.object().shape({
     .required('Occupation is required')
     .min(2, 'Occupation must be at least 2 characters')
     .max(50, 'Occupation must be less than 50 characters'),
+});
 
-  // image: yup
-  //   .mixed()
-  //   .test('fileType', 'Only image files are allowed', (value: any) => {
-  //     if (!value) return true; // If the field is not required, skip validation when no file is uploaded
-  //     return (
-  //       value && ['image/jpeg', 'image/png', 'image/jpg'].includes(value.type)
-  //     );
-  //   })
-  //   .test('fileSize', 'Image must be less than 5 MB', (value: any) => {
-  //     if (!value) return true;
-  //     return value && value.size <= 5 * 1024 * 1024;
-  //   }),
+export const appointmentSchema = yup.object().shape({
+  title: yup
+    .string()
+    .required('Title is required')
+    .min(3, 'Title must be at least 4 characters')
+    .max(20, 'Title must be less than 20 characters'),
+  description: yup
+    .string()
+    .required()
+    .min(5, 'Username must be at least 4 characters')
+    .max(30, 'Username must be less than 20 characters'),
+  date: yup.string().required('Date is required'),
+  time: yup.string().required('Time is required'),
 });

@@ -4,8 +4,10 @@ import { AuthCard } from '@/components/ui';
 import { signInSchema } from '@/libs/schemas';
 import { SignInFormData } from '@/libs/types';
 import { auth, db } from '@/services/firebase';
+import { getUser } from '@/services/firebase/user';
 import { errorToast, successToast } from '@/services/toast';
-import { saveUser } from '@/store/features';
+import { updateUser } from '@/store/features';
+
 import { yupResolver } from '@hookform/resolvers/yup';
 import { setCookie } from 'cookies-next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -53,11 +55,21 @@ export function SignInSection() {
       const user = userCredential.user;
       const token = await user.getIdToken();
 
+      const currentUser = await getUser(user.uid);
+
       setCookie('token', token, {
         maxAge: 60 * 60 * 24 * 5,
         path: '/',
       });
-      dispatch(saveUser({ email: fakeEmail, uid: user.uid }));
+      setCookie('uid', user.uid, { maxAge: 60 * 60 * 24 * 5, path: '/' });
+      dispatch(
+        updateUser({
+          uid: currentUser.uid,
+          name: currentUser.name,
+          occupation: currentUser.occupation,
+          username: currentUser.username,
+        })
+      );
 
       successToast({ message: 'User signed in successfully!' });
       router.push('/');

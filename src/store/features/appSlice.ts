@@ -1,38 +1,19 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { deleteCookie } from 'cookies-next';
-import { redirect } from 'next/navigation';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
 interface UserState {
   uid: string | null;
-  email: string | null;
+  username: string | null;
   name: string | null;
   occupation: string | null;
-  loading: boolean;
 }
 
 const initialState: UserState = {
   uid: null,
-  email: null,
+  username: null,
   name: null,
   occupation: null,
-  loading: false,
 };
-
-// Async thunk to fetch user info from Firebase by calling API route
-export const fetchUserInfo = createAsyncThunk(
-  'user/fetchUserInfo',
-  async () => {
-    const response = await axios.get('/api/user');
-
-    if (response.status === 401) {
-      deleteCookie('token');
-      redirect('/signin');
-    }
-    return response.data.user;
-  }
-);
 
 const appSlice = createSlice({
   name: 'app',
@@ -40,35 +21,19 @@ const appSlice = createSlice({
   reducers: {
     clearUser: (state) => {
       state.uid = null;
-      state.email = null;
+      state.username = null;
+      state.name = null;
+      state.occupation = null;
     },
-    saveUser: (
-      state,
-      action: PayloadAction<{ uid: string; email: string }>
-    ) => {
+    updateUser: (state, action: PayloadAction<UserState>) => {
       state.uid = action.payload.uid;
-      state.email = action.payload.email;
+      state.username = action.payload.username;
+      state.name = action.payload.name;
+      state.occupation = action.payload.occupation;
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchUserInfo.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(
-        fetchUserInfo.fulfilled,
-        (state, action: PayloadAction<{ uid: string; email: string }>) => {
-          state.uid = action.payload.uid;
-          state.email = action.payload.email;
-          state.loading = false;
-        }
-      )
-      .addCase(fetchUserInfo.rejected, (state) => {
-        state.loading = false;
-      });
   },
 });
 
-export const { clearUser, saveUser } = appSlice.actions;
+export const { clearUser, updateUser } = appSlice.actions;
 export default appSlice.reducer;
 export const getAppState = (state: RootState) => state.app;

@@ -1,9 +1,9 @@
 'use client';
 
-import { auth, setAuthPersistence } from '@/services/firebase';
+import { auth } from '@/services/firebase';
+import { getUser } from '@/services/firebase/user';
 import { AppDispatch } from '@/store';
-import { clearUser, fetchUserInfo, getAppState } from '@/store/features';
-import { formatUsername } from '@/utils';
+import { clearUser, getAppState, updateUser } from '@/store/features';
 import {
   Avatar,
   Button,
@@ -29,17 +29,27 @@ export function MainLayout({ children }: { children?: ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const router = useRouter();
-  const { email } = useSelector(getAppState);
+  const { username } = useSelector(getAppState);
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    setAuthPersistence();
-    dispatch(fetchUserInfo());
+    (async () => {
+      const user = await getUser();
+      dispatch(
+        updateUser({
+          uid: user.uid,
+          name: user.name,
+          occupation: user.occupation,
+          username: user.username,
+        })
+      );
+    })();
   }, [dispatch]);
 
   const handleSignOut = () => {
     auth.signOut();
     deleteCookie('token');
+    deleteCookie('uid');
     dispatch(clearUser());
     router.push('/signin');
   };
@@ -86,18 +96,23 @@ export function MainLayout({ children }: { children?: ReactNode }) {
 
         <NavbarContent className="hidden md:flex" justify="end">
           <NavbarItem>
-            <Dropdown>
+            <Dropdown className="min-w-fit" placement="bottom-end">
               <DropdownTrigger>
                 <Avatar
                   showFallback
                   isBordered
                   size="sm"
-                  name={formatUsername(email)}
+                  name={username as string}
                   className="cursor-pointer"
                 />
               </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem onClick={handleSignOut}>Sign Out</DropdownItem>
+              <DropdownMenu className="w-fit">
+                <DropdownItem href="/appointments" as={Link}>
+                  Appointments
+                </DropdownItem>
+                <DropdownItem onClick={handleSignOut} color="danger">
+                  Sign Out
+                </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </NavbarItem>

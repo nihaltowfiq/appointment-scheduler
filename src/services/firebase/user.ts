@@ -1,19 +1,31 @@
 import { db } from '@/services/firebase';
-import { collection, doc, getDoc, getDocs, query } from 'firebase/firestore';
-
-export async function getUserByUsername(username: string) {
-  const userRef = doc(db, 'usernames', username);
-  const userSnap = await getDoc(userRef);
-  if (userSnap.exists()) {
-    const userDoc = await getDoc(doc(db, 'users', userSnap.data().uid));
-    return userDoc.exists() ? userDoc.data() : null;
-  }
-  return null;
-}
+import { getCookie } from 'cookies-next';
+import { collection, getDocs, query } from 'firebase/firestore';
 
 export async function getAllUsers() {
   const usersRef = collection(db, 'users');
   const userQuery = query(usersRef);
   const querySnapshot = await getDocs(userQuery);
-  return querySnapshot.docs.map((doc) => doc.data());
+
+  const uid = getCookie('uid');
+  const users = querySnapshot.docs
+    .map((doc) => doc.data())
+    .filter((el) => el.uid !== uid);
+  return users;
+}
+
+export async function getUser(id?: string) {
+  let uid;
+  const usersRef = collection(db, 'users');
+  const userQuery = query(usersRef);
+  const querySnapshot = await getDocs(userQuery);
+
+  if (!id) uid = getCookie('uid');
+  else uid = id;
+
+  const users = querySnapshot.docs
+    .map((doc) => doc.data())
+    .filter((el) => el.uid === uid);
+
+  return users?.[0] || null;
 }
