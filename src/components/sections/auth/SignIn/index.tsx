@@ -56,10 +56,7 @@ export function SignInSection() {
 
       const currentUser = (await getUser(user.uid)) as User;
 
-      setCookie('token', token, {
-        maxAge: 60 * 60 * 24 * 5,
-        path: '/',
-      });
+      setCookie('token', token, { maxAge: 60 * 60 * 24 * 5, path: '/' });
       setCookie('uid', user.uid, { maxAge: 60 * 60 * 24 * 5, path: '/' });
       dispatch(
         updateUser({

@@ -3,6 +3,7 @@
 import { User } from '@/libs/types';
 import { auth } from '@/services/firebase';
 import { getUser } from '@/services/firebase/user';
+import { errorToast } from '@/services/toast';
 import { AppDispatch } from '@/store';
 import { clearUser, getAppState, updateUser } from '@/store/features';
 import {
@@ -36,6 +37,13 @@ export function MainLayout({ children }: { children?: ReactNode }) {
   useEffect(() => {
     (async () => {
       const user = (await getUser()) as User;
+
+      if (!user) {
+        handleSignOut();
+        errorToast({ message: 'Sign In again!' });
+        return;
+      }
+
       dispatch(
         updateUser({
           uid: user.uid,

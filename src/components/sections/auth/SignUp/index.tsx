@@ -19,6 +19,7 @@ import {
   setDoc,
   where,
 } from 'firebase/firestore';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -135,6 +136,13 @@ export function SignUpSection() {
         />
 
         <Password register={register as any} errors={errors as any} />
+
+        <div className="text-xs">
+          Already have an account?{' '}
+          <Link href="/signin" className="hover:text-primary">
+            Sign In
+          </Link>
+        </div>
 
         <Button
           fullWidth

@@ -1,11 +1,11 @@
 'use client';
 
 import { appointmentSchema } from '@/libs/schemas';
-import { Appointment, User } from '@/libs/types';
+import { AppointmentFormData, User } from '@/libs/types';
 import { db } from '@/services/firebase';
 import { errorToast, successToast } from '@/services/toast';
 import { getAppState } from '@/store/features';
-import { generateUID } from '@/utils';
+import { formatDate, generateUID } from '@/utils';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { parseDate, parseTime } from '@internationalized/date';
 import {
@@ -45,7 +45,7 @@ export function CreateAppointment({ user, isOpen, onOpenChange }: Props) {
     defaultValues,
   });
 
-  const onSubmit = async (data: Appointment) => {
+  const onSubmit = async (data: AppointmentFormData) => {
     const { title, description, date, time } = data;
     setLoading(true);
 
@@ -112,7 +112,9 @@ export function CreateAppointment({ user, isOpen, onOpenChange }: Props) {
                   variant="bordered"
                   className="w-full"
                   label="Date"
-                  value={watch('date') ? parseDate(watch('date')) : null}
+                  value={
+                    watch('date') ? parseDate(formatDate(watch('date'))) : null
+                  }
                   onChange={(e) => {
                     setValue('date', `${e.year}-${e.month}-${e.day}`);
                   }}

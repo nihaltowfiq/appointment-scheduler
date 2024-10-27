@@ -39,12 +39,12 @@ export const appointmentSchema = yup.object().shape({
     .string()
     .required('Title is required')
     .min(3, 'Title must be at least 4 characters')
-    .max(20, 'Title must be less than 20 characters'),
+    .max(30, 'Title must be less than 20 characters'),
   description: yup
     .string()
     .required()
     .min(5, 'Username must be at least 4 characters')
-    .max(30, 'Username must be less than 20 characters'),
+    .max(50, 'Username must be less than 20 characters'),
   date: yup.string().required('Date is required'),
   time: yup.string().required('Time is required'),
 });

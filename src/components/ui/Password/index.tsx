@@ -1,9 +1,8 @@
+import { EyeFilledIcon, EyeSlashFilledIcon } from '@/components/icons';
 import { SignInFormData } from '@/libs/types';
 import { Input } from '@nextui-org/react';
 import { useState } from 'react';
 import { FieldErrors, UseFormRegister } from 'react-hook-form';
-import { EyeFilledIcon } from './EyeFilledIcon';
-import { EyeSlashFilledIcon } from './EyeSlashFilledIcon';
 
 export function Password({ register, errors }: Props) {
   const [isVisible, setIsVisible] = useState(false);

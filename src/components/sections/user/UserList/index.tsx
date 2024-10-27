@@ -1,5 +1,6 @@
 'use client';
 
+import { SearchIcon, VerticalDotsIcon } from '@/components/icons';
 import { User } from '@/libs/types';
 import { db } from '@/services/firebase';
 import { errorToast } from '@/services/toast';
@@ -27,8 +28,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { CreateAppointment } from '../../appointment';
 import { columns } from './constants';
-import { SearchIcon } from './SearchIcon';
-import { VerticalDotsIcon } from './VerticalDotsIcon';
 
 export function UsersList() {
   const [isLoading, setLoading] = useState(false);
@@ -91,14 +90,14 @@ export function UsersList() {
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
 
-  const renderCell = useCallback((user: any, columnKey: string) => {
-    const cellValue = user[columnKey];
+  const renderCell = useCallback((user: User, columnKey: string) => {
+    const cellValue = user[columnKey as keyof User];
 
     switch (columnKey) {
       case 'name':
         return (
           <UserAvatar
-            avatarProps={{ radius: 'full', src: user.avatar }}
+            avatarProps={{ radius: 'full', src: '' }}
             description={user.username}
             name={cellValue}
           >

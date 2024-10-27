@@ -19,6 +19,19 @@ export type User = {
 };
 
 export type Appointment = {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  scheduler: User;
+  receiver: User;
+  status: Status;
+};
+
+type Status = 'pending' | 'accepted' | 'declined' | 'cancelled';
+
+export type AppointmentFormData = {
   title: string;
   description: string;
   date: string;
