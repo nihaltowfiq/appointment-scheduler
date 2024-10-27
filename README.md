@@ -35,7 +35,7 @@ This project is an appointment scheduler built with Next.js 14 (**React.js**) an
    Open the project with CodeEditor or any CLI.
 
 3. **Install dependencies and run**:
-   run these one by one line -
+   run these commands one by one -
 
 ```bash
 npm install
