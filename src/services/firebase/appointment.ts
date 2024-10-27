@@ -39,7 +39,6 @@ export async function updateAppointmentStatus(
       throw new Error('No appointment found with the specified id.');
     }
 
-    // Update status of the first matched document (assuming `id` is unique)
     const appointmentDoc = querySnapshot.docs[0];
     await updateDoc(appointmentDoc.ref, { status: status });
   } catch (err) {

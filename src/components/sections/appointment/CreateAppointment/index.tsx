@@ -72,8 +72,6 @@ export function CreateAppointment({ user, isOpen, onOpenChange }: Props) {
     }
   };
 
-  // const formatter = useDateFormatter({ dateStyle: 'short', timeStyle: 'long' });
-
   const handleClose = () => {
     onOpenChange();
     reset({ ...defaultValues });
